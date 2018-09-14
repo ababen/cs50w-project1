@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS books CASCADE;
 
 CREATE TABLE books (
   id SERIAL PRIMARY KEY,
-  isbn INTEGER,
+  isbn VARCHAR,
   title VARCHAR,
   author VARCHAR,
   year INTEGER
@@ -18,6 +18,10 @@ CREATE TABLE reviews (
   review TEXT NULL
 );
 
-INSERT INTO books (isbn, title, author, year)
-VALUES ('0765317508','Aztec','Gary Jennings','1980')
-VALUES ('0739328271','Plum Spooky','Janet Evanovich','2009');
+DROP TABLE IF EXISTS users CASCADE;
+
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  username VARCHAR,
+  password VARCHAR
+);

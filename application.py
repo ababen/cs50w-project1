@@ -61,6 +61,14 @@ def logout():
     password = ""
     return render_template("index.html")
 
+@app.route("/list", methods=["POST", "GET"])
+def list():
+    if db.execute("SELECT * FROM books").rowcount == 0:
+        return render_template("error.html", message="No books in database.")
+    else:
+        books = db.execute("SELECT * FROM books").fetchall()
+        return render_template("listbooks.html", books=books)
+
 @app.route("/search", methods=["GET"])
 def search():
 
@@ -83,20 +91,21 @@ def books():
     author = request.form.get("author")
     isbn = request.form.get("isbn")
 
-    if title is not None and title.strip() is not None:
-        title = request.form.get("title")
-        array.append("title LIKE "+title)
+    if request.form.get("title") is None:
+        result = "Empty"
     else:
-        title = ""
+        result = "Not Empty"
 
+    return render_template("test.html", result=result)
+    """
     if author is not None:
         array.append("author LIKE "+author)
 
     if isbn is not None:
         array.append("ISBN LIKE "+isbn)
-
+    """
     #query = db.execute("SELECT * FROM books").fetchall()
-    return render_template("test.html", result=array)
+
 
 #    if db.execute("SELECT * FROM books WHERE title = :title", {"title": title}).rowcount == 0:
 #        return render_template("error.html", message="No such book(s) in database.")
