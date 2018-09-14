@@ -3,16 +3,29 @@
     <head>
         <title>{% block title %}{% endblock %}</title>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" integrity="sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy" crossorigin="anonymous">
+        <link rel="stylesheet" href="/static/style.css" type="text/css">
+
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     </head>
     <body>
         <div class="container">
+
           <h3>Menu</h3>
           <ul>
-            <li><a href="/login">Login</a></li>
-            <li><a href="/register">Register</a></li>
+            <li>
+              {% if session['logged_in'] != None %}
+                <p>You are logged in.</p>
+              {% else %}
+                <a href="/login">Login</a>
+              {% endif %}
+            </li>
+            <li><a href="/">Home</a></li>
             <li><a href="/search">Search</a></li>
+            <li><a href="/books">Search Books Results (/books)</a></li>
             <li><a href="/list">List Books</a></li>
-            <li><a href="/books">Books</a></li>
+            <li><a href="/users">Users</a></li>
             <li><a href="/logout">Logout</a></li>
           </ul>
             {% block body %}

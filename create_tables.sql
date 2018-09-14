@@ -5,7 +5,7 @@ CREATE TABLE books (
   isbn VARCHAR,
   title VARCHAR,
   author VARCHAR,
-  year INTEGER
+  year VARCHAR
 );
 
 DROP TABLE IF EXISTS reviews CASCADE;
