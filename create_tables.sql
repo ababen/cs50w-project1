@@ -19,4 +19,5 @@ CREATE TABLE reviews (
 );
 
 INSERT INTO books (isbn, title, author, year)
-VALUES ('0765317508','Aztec','Gary Jennings','1980');
+VALUES ('0765317508','Aztec','Gary Jennings','1980')
+VALUES ('0739328271','Plum Spooky','Janet Evanovich','2009');

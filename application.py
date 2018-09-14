@@ -3,6 +3,7 @@ import os
 from flask import Flask, session, render_template, request
 from flask_session import Session
 from sqlalchemy import create_engine
+from sqlalchemy import and_
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 app = Flask(__name__)
@@ -51,7 +52,8 @@ def login():
     if db.execute("SELECT * FROM users WHERE (username = username) AND (password = password)").rowcount == 0:
         return render_template("error.html", message="No such username and password combination exists.")
     else:
-        return render_template("welcome.html")
+        session["user_id"] = username #Store user id here
+        return render_template("welcome.html", username=username)
 
 @app.route("/logout", methods=["GET"])
 def logout():
@@ -62,15 +64,45 @@ def logout():
 @app.route("/search", methods=["GET"])
 def search():
 
-    return render_template("books.html")
+    return render_template("search.html")
 
-@app.route("/books", methods=["GET"])
+@app.route("/books", methods=["POST"])
 def books():
-    if db.execute("SELECT * FROM books").rowcount == 0:
-        return render_template("error.html", message="No books in database.")
+#    if db.execute("SELECT * FROM books").rowcount == 0:
+#        return render_template("error.html", message="No books in database.")
+#    else:
+#        books = db.execute("SELECT * FROM books").fetchall()
+#        return render_template("books.html", books=books)
+
+    title = ""
+    author = ""
+    isbn = ""
+    array = []
+
+    title = request.form.get("title")
+    author = request.form.get("author")
+    isbn = request.form.get("isbn")
+
+    if title is not None and title.strip() is not None:
+        title = request.form.get("title")
+        array.append("title LIKE "+title)
     else:
-        books = db.execute("SELECT * FROM books").fetchall()
-        return render_template("books.html", books=books)
+        title = ""
+
+    if author is not None:
+        array.append("author LIKE "+author)
+
+    if isbn is not None:
+        array.append("ISBN LIKE "+isbn)
+
+    #query = db.execute("SELECT * FROM books").fetchall()
+    return render_template("test.html", result=array)
+
+#    if db.execute("SELECT * FROM books WHERE title = :title", {"title": title}).rowcount == 0:
+#        return render_template("error.html", message="No such book(s) in database.")
+#    else:
+#        books = db.execute("SELECT * FROM books WHERE (title = :title OR author = :author OR isbn = :isbn", {"title": title, "author": author, "isbn": isbn}).fetchall()
+#        return render_template("books.html", books=books)
 
 @app.route("/book/<int:book_id>")
 def book(book_id):
