@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, session
+from flask import Flask, session, render_template
 from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -25,9 +25,9 @@ db = scoped_session(sessionmaker(bind=engine))
 def index():
     return render_template("index.html")
 
-@app.route("/login", methods=["POST"])
+"""
+@app.route("/", methods=["POST"])
 def login():
-    """Login"""
 
     # Get form information.
     username = request.form.get("username")
@@ -38,7 +38,8 @@ def login():
 ##        return render_template("error.html", message="Invalid flight number.")
 
     # Make sure the login exists.
-    if db.execute("SELECT * FROM users WHERE (username = username) AND (password = password)).rowcount == 0:
+    if db.execute("SELECT * FROM users WHERE (username = username) AND (password = password)").rowcount == 0:
         return render_template("error.html", message="No such username and password combination exists.")
     else
-        return render_template("index.html", "")
+        return render_template("index.html")
+"""
