@@ -20,7 +20,6 @@ Session(app)
 # Set up database
 engine = create_engine(os.getenv("DATABASE_URL"))
 db = scoped_session(sessionmaker(bind=engine))
-meta = MetaData(engine,reflect=True)
 
 @app.route("/")
 def index():
@@ -67,14 +66,6 @@ def logout():
     session.clear()
     return render_template("index.html")
 
-@app.route("/list", methods=["POST", "GET"])
-def list():
-    if db.execute("SELECT * FROM books").rowcount == 0:
-        return render_template("error.html", message="No books in database.")
-    else:
-        books = db.execute("SELECT * FROM books").fetchall()
-        return render_template("listbooks.html", books=books)
-
 
 # Is this route even needed?
 @app.route("/search", methods=["GET"])
@@ -101,9 +92,9 @@ def books():
 
     # result = db.execute("SELECT * FROM books WHERE (:title IS NULL OR title LIKE :title) OR (:author IS NULL OR author LIKE :author),{"title": title, "author": author}).fetchall()
 
-    result = db.execute("SELECT * FROM books WHERE title LIKE :title", {"title" : title}).fetchall()
+    books = db.execute("SELECT * FROM books WHERE title LIKE :title", {"title" : title}).fetchall()
 
-    return render_template("test.html", result=result)
+    return render_template("books.html", books=books)
 
 @app.route("/users")
 def users():
@@ -121,7 +112,23 @@ def book(book_id):
     else:
         key = "9n1OXNaooCGd4OuxsOKo2g"
         res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": key, "isbns": book.isbn})
-        reviews = res['average_rating']
 
-        # print(res.json())
-        return render_template("book.html", book=book, res=res, reviews=reviews)
+        if res.status_code != 200:
+            return render_template("error.html", message="404 Error")
+
+        book_all = res.json()
+        book_rating = book_all['books'][0]['average_rating']
+
+        return render_template("book.html", book=book, book_rating=book_rating)
+
+
+
+"""
+@app.route("/list", methods=["POST", "GET"])
+def list():
+    if db.execute("SELECT * FROM books").rowcount == 0:
+        return render_template("error.html", message="No books in database.")
+    else:
+        books = db.execute("SELECT * FROM books").fetchall()
+        return render_template("listbooks.html", books=books)
+"""

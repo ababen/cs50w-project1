@@ -10,9 +10,6 @@
     <ul>
         <li>Year: {{ book.year }}</li>
         <li>ISBN: {{ book.isbn }}</li>
-        <li>{{ res }}</li>
-        <li>{{ res.json() }}</li>
-        <li>{{ res["average_rating"] }}</li>
-        <li>{{ reviews }}
+        <li>Average Review: {{ book_rating }}</li>
     </ul>
 {% endblock %}
