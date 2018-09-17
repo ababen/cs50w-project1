@@ -1,8 +1,9 @@
-import os
+import os, requests
+import json
 
-from flask import Flask, session, render_template, request, flash
+from flask import Flask, session, render_template, request
 from flask_session import Session
-from sqlalchemy import create_engine, MetaData, Table, select, or_
+from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 app = Flask(__name__)
@@ -56,6 +57,7 @@ def login():
     else:
         return render_template("error.html", message="Wrong username and password!")
 
+
 @app.route("/logout")
 def logout():
     username = None
@@ -73,6 +75,7 @@ def list():
         books = db.execute("SELECT * FROM books").fetchall()
         return render_template("listbooks.html", books=books)
 
+
 # Is this route even needed?
 @app.route("/search", methods=["GET"])
 def search():
@@ -83,39 +86,24 @@ def search():
 
 @app.route("/books", methods=["POST"])
 def books():
-    table = meta.tables['books']
-#    if db.execute("SELECT * FROM books").rowcount == 0:
-#        return render_template("error.html", message="No books in database.")
-#    else:
-#        books = db.execute("SELECT * FROM books").fetchall()
-#        return render_template("books.html", books=books)
+    # table = meta.tables['books']
+
     title = request.form.get("title")
     author = request.form.get("author")
     isbn = request.form.get("isbn")
 
-    query = []
+    if len(title) == 0:
+        title = None
+    if len(author) == 0:
+        author = None
+    if len(isbn) == 0:
+        isbn = None
 
-    if len(title) > 0:
-        query.append('title LIKE title')
-    if len(author) > 0:
-        query.append("author LIKE :author")
-    if len(isbn) > 0:
-        query.append("isbn LIKE :isbn")
+    # result = db.execute("SELECT * FROM books WHERE (:title IS NULL OR title LIKE :title) OR (:author IS NULL OR author LIKE :author),{"title": title, "author": author}).fetchall()
 
-    # select_all = select([table]).where(or_(query))
-    # result = db.execute(select_all)
+    result = db.execute("SELECT * FROM books WHERE title LIKE :title", {"title" : title}).fetchall()
 
-    # result = db.execute("SELECT * FROM books WHERE :query", {"query": query}).fetchall()
-    result = query
     return render_template("test.html", result=result)
-    # query = db.execute("SELECT * FROM books").fetchall()
-
-
-#    if db.execute("SELECT * FROM books WHERE title = :title", {"title": title}).rowcount == 0:
-#        return render_template("error.html", message="No such book(s) in database.")
-#    else:
-#        books = db.execute("SELECT * FROM books WHERE (title = :title OR author = :author OR isbn = :isbn", {"title": title, "author": author, "isbn": isbn}).fetchall()
-#        return render_template("books.html", books=books)
 
 @app.route("/users")
 def users():
@@ -131,10 +119,9 @@ def book(book_id):
     if book is None:
         return render_template("error.html", message="No such book.")
     else:
-        return render_template("book.html", book=book)
-    """
-    # Get all books.
-    books = db.execute("SELECT name FROM books WHERE book_id = :book_id",
-                            {"book_id": book_id}).fetchall()
-    return render_template("book.html", book=book, books=books)
-    """
+        key = "9n1OXNaooCGd4OuxsOKo2g"
+        res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": key, "isbns": book.isbn})
+        reviews = res['average_rating']
+
+        # print(res.json())
+        return render_template("book.html", book=book, res=res, reviews=reviews)

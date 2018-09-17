@@ -9,6 +9,10 @@
 <h2>[book.html]</h2>
     <ul>
         <li>Year: {{ book.year }}</li>
-        <li>ISBN: {{ book.isbn }}
+        <li>ISBN: {{ book.isbn }}</li>
+        <li>{{ res }}</li>
+        <li>{{ res.json() }}</li>
+        <li>{{ res["average_rating"] }}</li>
+        <li>{{ reviews }}
     </ul>
 {% endblock %}
