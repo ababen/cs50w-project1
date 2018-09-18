@@ -1,7 +1,6 @@
 import os, requests
-import json
 
-from flask import Flask, session, render_template, request, jsonify
+from flask import Flask, session, render_template, request
 from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -56,7 +55,6 @@ def login():
     else:
         return render_template("error.html", message="Wrong username and password!")
 
-
 @app.route("/logout")
 def logout():
     username = None
@@ -65,7 +63,6 @@ def logout():
     session['logged_in'] = False
     session.clear()
     return render_template("index.html")
-
 
 # Is this route even needed?
 @app.route("/search", methods=["GET"])
@@ -138,7 +135,7 @@ def review(book_id):
         db.execute("INSERT INTO reviews (book_id, user_id, stars, review) VALUES (:book_id, :user_id, :stars, :review)", {"book_id": book_id, "user_id": session["user_id"], "stars": stars, "review": review})
         db.commit()
     """
-    return render_template("error.html", message=users.id)
+    return render_template("error.html", message=users)
 
 @app.route("/api/<int:isbn_id>", methods=["GET"])
 def api(isbn_id):

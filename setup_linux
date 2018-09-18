@@ -1,0 +1,4 @@
+export FLASK_APP=application.py
+export DATABASE_URL=postgres://snsrrliwrwwtnj:578ea2b57c3c7d438f1ebe7bd4b613545696$
+export FLASK_DEBUG=1
+flask run
