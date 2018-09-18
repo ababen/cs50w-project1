@@ -127,20 +127,18 @@ def book(book_id):
 def review(book_id):
     stars = request.form.get("stars")
     review = request.form.get("review")
+    username = session["user_name"]
 
-    curr_reviews = db.execute("SELECT * FROM reviews LEFT JOIN public.users ON (reviews.user_id = users.id) WHERE book_id = :id", {"id": book_id}).fetchall
-
-    # session["user_id"] =
+    users = db.execute("SELECT username, id from users WHERE username = :username", {"username" : username}).fetchone
 
     """
-    if db.execute("SELECT * FROM reviews LEFT JOIN public.users ON (reviews.user_id = users.id) WHERE book_id = :id", {"id": book_id}).rowcount > 0:
+    if db.execute("SELECT * FROM reviews LEFT JOIN public.users ON (reviews.user_id = users.id) WHERE book_id = :id AND username = :username", {"id": book_id, "username": username}).rowcount > 0:
         return render_template("error.html", message="Review already exists.")
     else:
-        # db.execute("SELECT * FROM users WHERE username = :username", {"username" : username }).fetchone
-        db.execute("INSERT INTO reviews (book_id, user_id, stars, review) VALUES (:book_id, :user_id, :stars, :review)", {"book_id": book_id, "user_id": user_id, "stars": stars, "review": review})
+        db.execute("INSERT INTO reviews (book_id, user_id, stars, review) VALUES (:book_id, :user_id, :stars, :review)", {"book_id": book_id, "user_id": session["user_id"], "stars": stars, "review": review})
         db.commit()
     """
-    return render_template("error.html", message=curr_reviews.users_id)
+    return render_template("error.html", message=users.id)
 
 @app.route("/api/<int:isbn_id>", methods=["GET"])
 def api(isbn_id):
