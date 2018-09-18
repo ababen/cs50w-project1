@@ -6,10 +6,44 @@
 
 {% block body %}
 <h1>Book {{ book.title }} by {{ book.author }}</h1>
-<h2>[book.html]</h2>
+<br>
     <ul>
         <li>Year: {{ book.year }}</li>
         <li>ISBN: {{ book.isbn }}</li>
         <li>Average Review: {{ book_rating }}</li>
     </ul>
+    <br>
+    <h2>Reviews by Members</h2>
+    <br>
+    {% for reviews in reviews %}
+      {{ reviews.username }}
+      <br>
+        {{ reviews.stars }}
+        <br>
+        {{ reviews.review }}
+        <br>
+        <br>
+    {% endfor %}
+    <br>
+    <h2>Review book</h2>
+    <br>
+    <div>
+    </div>
+    <form action="{{ url_for('review', book_id=book.id) }}" method="post">
+      <br>
+      <p>How many stars?</p>
+      <select name="stars">
+        <option value="5">5</option>
+        <option value="4">4</option>
+        <option value="3">3</option>
+        <option value="2">2</option>
+        <option value="1">1</option>
+      </select>
+      <br>
+      <textarea type="textarea" name="review" placeholder="Enter review here" rows="4" cols="50" draggable="true">Enter review here...</textarea>
+      <br>
+      <button class="btn btn-primary btn-large btn-block" >Submit Review</button>
+    </form>
+    <br>
+
 {% endblock %}

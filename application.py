@@ -38,7 +38,7 @@ def register():
         db.execute("INSERT INTO users (username, password) VALUES (:username, :password)",
                 {"username": username, "password": password})
         db.commit()
-        session["user_id"] = username
+        session["user_name"] = username
         return render_template("search.html")
 
 @app.route("/login", methods=["POST"])
@@ -50,7 +50,7 @@ def login():
     # Make sure the login exists.
     if db.execute("SELECT * FROM users WHERE (username = :username) AND (password = :password)",
                 {"username": username, "password": password}).rowcount == 1:
-        session["user_id"] = username #Store user id here
+        session["user_name"] = username #Store user id here
         session["logged_in"] = True
         return render_template("search.html", username=username)
     else:
@@ -61,7 +61,7 @@ def login():
 def logout():
     username = None
     password = None
-    session["user_id"] = None
+    session["user_name"] = None
     session['logged_in'] = False
     session.clear()
     return render_template("index.html")
@@ -119,7 +119,28 @@ def book(book_id):
         book_all = res.json()
         book_rating = book_all['books'][0]['average_rating']
 
-        return render_template("book.html", book=book, book_rating=book_rating)
+        reviews = db.execute("SELECT * FROM reviews LEFT JOIN public.users ON (reviews.user_id = users.id) WHERE book_id = :id", {"id": book_id}).fetchall()
+
+        return render_template("book.html", book=book, book_rating=book_rating, reviews=reviews)
+
+@app.route("/review/<int:book_id>", methods=["POST"])
+def review(book_id):
+    stars = request.form.get("stars")
+    review = request.form.get("review")
+
+    curr_reviews = db.execute("SELECT * FROM reviews LEFT JOIN public.users ON (reviews.user_id = users.id) WHERE book_id = :id", {"id": book_id}).fetchall
+
+    # session["user_id"] =
+
+    """
+    if db.execute("SELECT * FROM reviews LEFT JOIN public.users ON (reviews.user_id = users.id) WHERE book_id = :id", {"id": book_id}).rowcount > 0:
+        return render_template("error.html", message="Review already exists.")
+    else:
+        # db.execute("SELECT * FROM users WHERE username = :username", {"username" : username }).fetchone
+        db.execute("INSERT INTO reviews (book_id, user_id, stars, review) VALUES (:book_id, :user_id, :stars, :review)", {"book_id": book_id, "user_id": user_id, "stars": stars, "review": review})
+        db.commit()
+    """
+    return render_template("error.html", message=curr_reviews.users_id)
 
 @app.route("/api/<int:isbn_id>", methods=["GET"])
 def api(isbn_id):
