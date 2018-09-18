@@ -1,7 +1,7 @@
 import os, requests
 import json
 
-from flask import Flask, session, render_template, request
+from flask import Flask, session, render_template, request, jsonify
 from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -121,6 +121,19 @@ def book(book_id):
 
         return render_template("book.html", book=book, book_rating=book_rating)
 
+@app.route("/api/<int:isbn_id>", methods=["GET"])
+def api(isbn_id):
+    key = "9n1OXNaooCGd4OuxsOKo2g"
+    res1 = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": key, "isbns": isbn_id})
+
+    a = res1.json()
+    # b = a['books']
+    b = "ty"
+
+    return b
+
+    # if res.status_code != 200:
+    #    return(res.status_code)
 
 
 """

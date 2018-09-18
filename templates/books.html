@@ -1,19 +1,26 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Books
+    All Books
 {% endblock %}
 
 {% block body %}
     <h1>All Books</h1>
 
-    <ul>
-        {% for books in books %}
-            <li>
-                    <a href="{{ url_for('book', book_id=book.id) }}">{{ books.title }} by {{ books.author}} written {{ books.year }}</a>
-                </a>
-            </li>
-        {% endfor %}
-    </ul>
+    <table style="width:80%" class="table">
+      <tr>
+        <th scope="col">Title</th>
+        <th scope="col">Author</th>
+        <th scope="col">Year</th>
+      </tr>
+      {% for books in books %}
+      <tr class="table-striped">
+        <td><a href="{{ url_for('book', book_id=books.id) }}">{{ books.title }}</a></td>
+        <td>{{ books.author }}</td>
+        <td>{{ books.year }}</td>
+        <td>{{ books.isbn }}</td>
+      </tr>
+      {% endfor %}
+    </table>
 
 {% endblock %}
