@@ -5,6 +5,7 @@ from flask import Flask, session, render_template, request, abort
 from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
+from passlib.hash import sha256_crypt
 from getgoodreads import get_goodreads
 
 app = Flask(__name__)
@@ -36,25 +37,41 @@ def register():
                 {"username": username}).rowcount > 0:
         return render_template("error.html", message="Username already exists.")
     else:
+        password1 = sha256_crypt.encrypt(password)
+        password2 = sha256_crypt.encrypt(password1)
+
         db.execute("INSERT INTO users (username, password) VALUES (:username, :password)",
-                {"username": username, "password": password})
+                {"username": username, "password": password2})
         db.commit()
         session["user_name"] = username
         return render_template("search.html")
+
+        """
+        me = User('John Doe', 'default')
+        me.pw_hash
+        'sha1$Z9wtkQam$7e6e814998ab3de2b63401a58063c79d92865d79'
+        me.check_password('default')
+        True
+        me.check_password('defaultx')
+        False
+        """
 
 @app.route("/login", methods=["POST"])
 def login():
     # Get form information.
     username = request.form.get("username")
     password = request.form.get("password")
+
     # Make sure the login exists.
-    if db.execute("SELECT * FROM users WHERE (username = :username) AND (password = :password)",
-                {"username": username, "password": password}).rowcount == 1:
+    hash = db.execute("SELECT password FROM users WHERE username = :username", {"username" : username}).fetchone()
+    
+    if db.execute("SELECT * FROM users WHERE (username = :username) AND (password = :password))",
+                {"username": username, "password": sha256_crypt.verify(hash.password[0], password)}).rowcount == 1:
         session["user_name"] = username #Store user id here
         session["logged_in"] = True
         return render_template("search.html", username=username)
     else:
-        return render_template("error.html", message="Wrong username and password!")
+        return render_template("error.html", message="Wrong username and/or password!")
 
 @app.route("/logout")
 def logout():
