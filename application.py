@@ -107,7 +107,8 @@ def book(book_id):
     if book is None:
         return render_template("error.html", message="No such book.")
     else:
-        key = "9n1OXNaooCGd4OuxsOKo2g"
+        key = os.getenv("GoodReadsKey")
+        # key = "9n1OXNaooCGd4OuxsOKo2g"
         res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": key, "isbns": book.isbn})
 
         if res.status_code != 200:
@@ -126,20 +127,22 @@ def review(book_id):
     review = request.form.get("review")
     username = session["user_name"]
 
-    users = db.execute("SELECT username, id from users WHERE username = :username", {"username" : username}).fetchone
+    users = db.execute("SELECT username, id from users WHERE username = :username", {"username" : username}).fetchone()
 
-    """
+
     if db.execute("SELECT * FROM reviews LEFT JOIN public.users ON (reviews.user_id = users.id) WHERE book_id = :id AND username = :username", {"id": book_id, "username": username}).rowcount > 0:
         return render_template("error.html", message="Review already exists.")
     else:
-        db.execute("INSERT INTO reviews (book_id, user_id, stars, review) VALUES (:book_id, :user_id, :stars, :review)", {"book_id": book_id, "user_id": session["user_id"], "stars": stars, "review": review})
+        db.execute("INSERT INTO reviews (book_id, user_id, stars, review) VALUES (:book_id, :user_id, :stars, :review)", {"book_id": book_id, "user_id": users.id, "stars": stars, "review": review})
         db.commit()
-    """
-    return render_template("error.html", message=users)
+
+    return render_template("book.html", book=book, book_rating=book_rating, reviews=reviews)
 
 @app.route("/api/<int:isbn_id>", methods=["GET"])
 def api(isbn_id):
-    key = "9n1OXNaooCGd4OuxsOKo2g"
+    # key = "9n1OXNaooCGd4OuxsOKo2g"
+    key = os.getenv("GoodReadsKey")
+
     res1 = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": key, "isbns": isbn_id})
 
     a = res1.json()

@@ -1,0 +1,7 @@
+
+env_var/setup_cmd.bat
+env_var/setup_linux
+env_var/setup_powershell.ps1
+setup_linux
+setup_cmd.bat
+setup_powershell.ps1
