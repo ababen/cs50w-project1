@@ -1,17 +1,18 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    All Books
+    Search Results
 {% endblock %}
 
 {% block body %}
-    <h1>All Books</h1>
+    <h1>All Books Matching Your Search</h1>
 
     <table style="width:80%" class="table">
       <tr>
         <th scope="col">Title</th>
         <th scope="col">Author</th>
         <th scope="col">Year</th>
+        <th scope="col">ISBN</th>
       </tr>
       {% for books in books %}
       <tr class="table-striped">

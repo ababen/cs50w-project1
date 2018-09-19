@@ -12,20 +12,14 @@
     <body>
         <div class="container">
 
-          <h3>Menu</h3>
-          <ul>
-            <li>
-              {% if session['logged_in'] != None %}
-                <p>You are logged in.</p>
-              {% else %}
-                <a href="/login">Login</a>
-              {% endif %}
-            </li>
-            <li><a href="/">Home</a></li>
-            <li><a href="/search">Search</a></li>
-            <li><a href="/users">Users</a></li>
-            <li><a href="/logout">Logout</a></li>
-          </ul>
+          <h3>CS50 Book Search Website</h3>
+          <div><a href="/">Home</a> | <a href="/search">Search</a> |
+            {% if session['logged_in'] == True %}
+              <a href="/logout">Logout</a>
+            {% else %}
+              <a href="/">Login</a>
+            {% endif %}
+          </div><br><br>
             {% block body %}
             {% endblock %}
         </div>

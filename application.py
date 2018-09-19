@@ -1,9 +1,11 @@
 import os, requests
+import json
 
-from flask import Flask, session, render_template, request
+from flask import Flask, session, render_template, request, abort
 from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
+from getgoodreads import get_goodreads
 
 app = Flask(__name__)
 
@@ -42,7 +44,6 @@ def register():
 
 @app.route("/login", methods=["POST"])
 def login():
-    message = None
     # Get form information.
     username = request.form.get("username")
     password = request.form.get("password")
@@ -74,29 +75,15 @@ def search():
 
 @app.route("/books", methods=["POST"])
 def books():
-    # table = meta.tables['books']
+    searchqry = request.form.get("searchqry")
 
-    title = request.form.get("title")
-    author = request.form.get("author")
-    isbn = request.form.get("isbn")
+    if len(searchqry) == 0:
+        searchqry = None
 
-    if len(title) == 0:
-        title = None
-    if len(author) == 0:
-        author = None
-    if len(isbn) == 0:
-        isbn = None
-
-    # result = db.execute("SELECT * FROM books WHERE (:title IS NULL OR title LIKE :title) OR (:author IS NULL OR author LIKE :author),{"title": title, "author": author}).fetchall()
-
-    books = db.execute("SELECT * FROM books WHERE title LIKE :title", {"title" : title}).fetchall()
+    books = db.execute("SELECT * FROM books WHERE (title LIKE :searchqry) OR (author LIKE :searchqry) OR (isbn LIKE :searchqry)",
+                {"searchqry" : '%' + searchqry + '%'}).fetchall()
 
     return render_template("books.html", books=books)
-
-@app.route("/users")
-def users():
-    users = db.execute("SELECT * FROM users").fetchall()
-    return render_template("users.html", users=users)
 
 @app.route("/book/<int:book_id>")
 def book(book_id):
@@ -107,14 +94,12 @@ def book(book_id):
     if book is None:
         return render_template("error.html", message="No such book.")
     else:
-        key = os.getenv("GoodReadsKey")
-        # key = "9n1OXNaooCGd4OuxsOKo2g"
-        res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": key, "isbns": book.isbn})
+        goodreads = get_goodreads(book.isbn)
 
-        if res.status_code != 200:
+        if goodreads.status_code != 200:
             return render_template("error.html", message="404 Error")
 
-        book_all = res.json()
+        book_all = goodreads.json()
         book_rating = book_all['books'][0]['average_rating']
 
         reviews = db.execute("SELECT * FROM reviews LEFT JOIN public.users ON (reviews.user_id = users.id) WHERE book_id = :id", {"id": book_id}).fetchall()
@@ -136,31 +121,34 @@ def review(book_id):
         db.execute("INSERT INTO reviews (book_id, user_id, stars, review) VALUES (:book_id, :user_id, :stars, :review)", {"book_id": book_id, "user_id": users.id, "stars": stars, "review": review})
         db.commit()
 
-    return render_template("book.html", book=book, book_rating=book_rating, reviews=reviews)
+    return render_template("error.html", message="Review added")
 
-@app.route("/api/<int:isbn_id>", methods=["GET"])
+@app.route("/api/<isbn_id>", methods=["GET"])
 def api(isbn_id):
-    # key = "9n1OXNaooCGd4OuxsOKo2g"
-    key = os.getenv("GoodReadsKey")
+    book_api = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn" : isbn_id}).fetchone()
 
-    res1 = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": key, "isbns": isbn_id})
-
-    a = res1.json()
-    # b = a['books']
-    b = "ty"
-
-    return b
-
-    # if res.status_code != 200:
-    #    return(res.status_code)
-
-
-"""
-@app.route("/list", methods=["POST", "GET"])
-def list():
-    if db.execute("SELECT * FROM books").rowcount == 0:
-        return render_template("error.html", message="No books in database.")
+    if book_api is None:
+        goodreads = get_goodreads(isbn_id)
+        if goodreads.status_code != 200:
+            return abort(404)
+        else:
+            book_api = goodreads.json()
+            return book_api
     else:
-        books = db.execute("SELECT * FROM books").fetchall()
-        return render_template("listbooks.html", books=books)
-"""
+        book_reviews = db.execute("SELECT COUNT(id), AVG(stars) FROM reviews WHERE book_id = :book_id", {"book_id" : book_api.id}).fetchone()
+
+    resp = {}
+    resp['title'] = book_api.title
+    resp['author'] = book_api.author
+    resp['year'] = book_api.year
+    resp['isbn'] = book_api.isbn
+    try:
+        resp['review_count'] = str(book_reviews[0])
+        resp['average_score'] = '% 1.1f' % book_reviews[1]
+    except TypeError:
+        resp['review_count'] = "Not enough reviews"
+        resp['average_score'] = "Not enough reviews"
+
+    json_resp = json.dumps(resp)
+
+    return json_resp, 200

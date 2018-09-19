@@ -5,25 +5,28 @@
 {% endblock %}
 
 {% block body %}
-<h1>Book {{ book.title }} by {{ book.author }}</h1>
+<h1>{{ book.title }} by {{ book.author }}</h1>
 <br>
-    <ul>
-        <li>Year: {{ book.year }}</li>
-        <li>ISBN: {{ book.isbn }}</li>
-        <li>Average Review: {{ book_rating }}</li>
-    </ul>
+    <div>
+        <b>Title:</b> {{ book.title }}<br>
+        <b>Author:</b> {{ book.author }}<br>
+        <b>Year:</b> {{ book.year }}<br>
+        <b>ISBN:</b> {{ book.isbn }}<br>
+        <b>Goodreads Average Review:</b> {{ book_rating }}<br>
+    <div>
     <br>
     <h2>Reviews by Members</h2>
     <br>
+    {% if reviews %}
     {% for reviews in reviews %}
-      {{ reviews.username }}
-      <br>
-        {{ reviews.stars }}
+      <b>{{ reviews.username }}</b> gave <b>{{ reviews.stars }}</b> and said:
         <br>
         {{ reviews.review }}
-        <br>
-        <br>
+        <br><br>
     {% endfor %}
+    {% else %}
+      <p>No one has left a review yet.</p>
+    {% endif %}
     <br>
     <h2>Review book</h2>
     <br>
@@ -40,7 +43,7 @@
         <option value="1">1</option>
       </select>
       <br>
-      <textarea type="textarea" name="review" placeholder="Enter review here" rows="4" cols="50" draggable="true">Enter review here...</textarea>
+      <textarea type="textarea" name="review" placeholder="Enter review here" rows="4" cols="50" draggable="true"></textarea>
       <br>
       <button class="btn btn-primary btn-large btn-block" >Submit Review</button>
     </form>

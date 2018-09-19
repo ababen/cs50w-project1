@@ -5,14 +5,12 @@
 {% endblock %}
 
 {% block body %}
-    <h1>Search Books [search.html]</h1>
+    <h1>Search Books</h1>
 
     <form action="{{ url_for('books') }}" method="post">
 
         <div class="form-group">
-            <input class="form-control" name="title" placeholder="Book Title">
-            <input class="form-control" name="author" placeholder="Author">
-            <input class="form-control" name="isbn" placeholder="ISBN">
+            <input class="form-control" name="searchqry" placeholder="Search by Title, Author or ISBN">
         </div>
 
         <div class="form-group">
