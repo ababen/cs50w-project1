@@ -5,13 +5,11 @@
 {% endblock %}
 
 {% block body %}
-<h1>Welcome! [index.html]</h1>
 {% if session['logged_in'] %}
-<p>You are already logged in!</p>
+<p>You are already logged in! Use the <a href="/search">search</a> function to find books and reviews.</p>
 {% else %}
-    <h1>Login</h1>
     <div>
-      <p>If you don't have a login, you need to <a href="#register">register</a></p>
+
     </div>
     <form action="{{ url_for('login') }}" method="post">
         <div class="login">
@@ -34,13 +32,14 @@
           </div>
         </div>
     </form>
+    <p align="center">If you don't have a login, you need to <a href="#register">register</a></p>
     <br>
-    <h2>Register</h2>
+    <h2 align="center">Register</h2>
     <br>
     <form action="{{ url_for('register') }}" method="post">
       <div name="register" class="login-screen">
         <input class="form-control" name="username" placeholder="Username">
-        <input class="form-control" name="password" placeholder="Password">
+        <input type="password" class="form-control" name="password" placeholder="Password">
       </div>
       <div class="login-screen">
         <button class="btn btn-primary btn-large btn-block">Register</button>
